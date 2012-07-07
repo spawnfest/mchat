@@ -1,6 +1,11 @@
 body {
-
+  background-color: #fbfaf8;
 }
+
+b {
+  font-weight: bold;
+}
+
 .sidebar-view {
   position: fixed;
   float: left;
@@ -9,6 +14,7 @@ body {
   background-color: whitesmoke;
   border-right: 1px solid #b9b8b6;
   box-shadow: #eee 2px 0px 3px;
+  z-index: 999;
 }
 
 .sidebar-view > div {
@@ -28,43 +34,90 @@ body {
 }
 .login-view button {
   position: relative;
-  top: -4px;
+  top: -4.5px;
 }
 
 ul.users-collection-view {
   overflow: auto;
   height: 300px;
+  border-bottom: 1px solid lightgrey;
 }
 ul.users-collection-view > li {
-  padding: 0 10px;
+  padding: 10px 10px;
   cursor: pointer;
+  font-size: 13px;
+  border-bottom: 1px lightgrey dashed;
+}
+ul.users-collection-view > li > i {
+  top: 2px;
+  position: relative;
+}
+
+.circle {
+ background-color: #17DC17;
+ height: 7px;
+ width: 7px;
+ top: 5px;
+ margin-right: 5px;
+ float: left;
+ position: relative;
+ border-radius: 5px;
+ border: 1px solid #555;
 }
 
 .chatboxes-view {
   position: fixed;
   left: 317px;
-  width: 100%;
-  height: 100%
-  background-color: #fbfaf8;
+  height: 100%;
   padding: 10px 15px;
+  overflow: auto;
 }
 
 .chatbox-view {
   float: left;
-  border: 1px solid black;
+  background-color: whitesmoke;
+  border: 1px solid #b9b8b6;
+  box-shadow: #eee 2px 2px 3px;
   width: 260px;
   margin-right: 15px;
   margin-bottom: 15px;
 }
 
+.chatbox-view > div {
+  border-bottom: 1px solid lightgrey;
+}
+.chatbox-view > div:last-child {
+  border: 0;
+}
+
+.chat-header, .chat-log, .chat-input {
+  padding: 0 10px;
+}
+
 .chat-header {
 
 }
-
+.chat-header > h3{
+  width: 80%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  text-shadow: rgba(255, 255, 255, 1.0) 0px 1px 1px;
+  display: inline-block;
+}
+.chat-header i {
+  position: relative;
+  top: 6px;
+}
 .chat-log {
-
+  height: 120px;
+  overflow: auto;
+  width: 240px;
+  word-wrap: break-word;
 }
 
-.chat-input{
-
+.chat-input > textarea{
+  width: 230px;
+  height: 53px;
+  margin-top: 9px;
+  resize: none;
 }

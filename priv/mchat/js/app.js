@@ -80,7 +80,9 @@ Mchat.UsersCollectionView = Em.CollectionView.extend({
   classNames: ['unstyled', 'users-collection-view'],
   contentBinding: 'Mchat.usersController.content',
   itemViewClass: Em.View.extend({
-    template: Em.Handlebars.compile('{{content.username}}'),
+    template: Em.Handlebars.compile(
+      '<div class="circle"></div>{{content.username}} \
+      <i class="pull-right icon-user"></i>'),
     click: function(e) {
       var username = this.content.username;
       if (username === Mchat.currentUser.get('username'))
@@ -103,8 +105,8 @@ Mchat.ChatBoxView = Em.View.extend({
   msg: '',
   append: function(username, msg) {
     this.$('.chat-log').append(
-      '<div><span><b>' + username + ': </b></span>' +
-      '<span>' + msg + '</span></div>'
+      "<div><span><b>" + username + ": </b></span>" + 
+      "<span>" + msg + "</span></div>"
     ).prop('scrollTop', $('.chat-log').prop('scrollHeight'));
   },
   keyUp: function(e) {

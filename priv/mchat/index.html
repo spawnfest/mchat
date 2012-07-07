@@ -30,6 +30,7 @@
     {{view Mchat.LoginView}}
     {{view Mchat.CurrentUserView}}
     {{view Mchat.UsersCollectionView}}
+    <div><iframe src=""></iframe></div>
   </script>
   <script type="text/x-handlebars" data-template-name="login-view">
     <form>
@@ -42,9 +43,9 @@
     </form>
   </script>
   <script type="text/x-handlebars" data-template-name="chatbox-view">
-    <div class="chat-header">{{to}}
-      <span class="pull-right">
-        <i {{action "close" on="click"}} class="icon-remove"></i>
+    <div class="chat-header"><h3>{{to}}</h3>
+      <span>
+        <i {{action "close" on="click"}} class="pull-right icon-remove"></i>
       </span>
     </div>
     <div class="chat-log"></div>
