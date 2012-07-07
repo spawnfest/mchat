@@ -1,7 +1,12 @@
 REBAR=rebar
 
-all:
-	@$(REBAR) get-deps compile
+all: app
+
+app: get-deps
+	@$(REBAR) compile
+
+get-deps:
+	@$(REBAR) get-deps
 
 edoc:
 	@$(REBAR) doc
@@ -13,4 +18,4 @@ test:
 
 clean:
 	@$(REBAR) clean
-
+	rm -f erl_crash.dmp
