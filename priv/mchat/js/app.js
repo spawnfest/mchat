@@ -6,11 +6,18 @@ var Mchat = Em.Application.create({
   if (!'WebSocket' in window) {
     alert('Browser does not support websockets.');
   }
-  Mchat.initBullet();
+  $.getJSON('/client-config.json', function(data) {
+    Mchat.IP = data.ip,
+    Mchat.PORT = data.port,
+    Mchat.initBullet();
+  });
   Mchat.sidebarView.append();
   Mchat.chatboxesView.append();
- }   
+ }
 });
+
+Mchat.IP = "localhost";
+Mchat.PORT = "8080";
 
 // Statemanager
 Mchat.stateManager = Em.StateManager.create({
@@ -145,7 +152,7 @@ Mchat.JsonRPCSend = function(json) {
 
 Mchat.initBullet = function() {
   // TODO Make configurable via server
-  Mchat.Bullet = $.bullet('ws://localhost:8080/mchat-api');
+  Mchat.Bullet = $.bullet('ws://'+Mchat.IP+':'+Mchat.PORT+'/mchat-api');
   Mchat.Bullet.onopen = function() {
     console.log('Main websocket: opened');
   };

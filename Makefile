@@ -21,5 +21,6 @@ clean:
 	rm -f erl_crash.dmp
 
 run:
-	erl -pa ebin deps/*/ebin -s mchat_app
+	cp config/client-config.json priv/mchat/.
+	erl -pa ebin deps/*/ebin -args_file config/vm.args -config config/sys.config -s mchat_app
 
