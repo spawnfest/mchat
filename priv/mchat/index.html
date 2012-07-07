@@ -36,15 +36,13 @@
   </script>
   <script type="text/x-handlebars" data-template-name="login-view">
     <form>
-        {{view Em.TextField width="240px"
-            placeholder="Enter username"
-            valueBinding="username"}}
-        <div>
-          <button type="sumbit" class="btn primary">
-            Connect
-          </button>
-        </div>
-   </form>
+      {{view Em.TextField width="240px"
+          placeholder="Enter username"
+          valueBinding="username"}}
+      <button type="sumbit" class="btn primary">
+        Connect
+      </button>
+    </form>
   </script>
 
   <!-- The missing protocol means that it will match the current protocol, either http or https. If running locally, we use the local jQuery. -->

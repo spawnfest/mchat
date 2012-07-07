@@ -152,6 +152,10 @@ Mchat.api = Em.Object.create({
       return user;
     });
     Mchat.usersController.set('content', arr);
+  },
+
+  _userStatus: function(result) {
+    console.log(result);
   }
 });
 

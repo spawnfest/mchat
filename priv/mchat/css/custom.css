@@ -1,14 +1,23 @@
-body.container-fluid {
-  padding-left: 0px;
+body {
 }
-.sidebar {
+.sidebar-view {
   padding-left: 10px;
+  float: left;
+  width: 400px;
+  background-color: whitesmoke;
 }
 
-.chatboxes {
-
+.login-view button {
+  position: relative;
+  top: -4px;
 }
 
-.chatbox {
+.chatboxes-view {
+  float: left;
+  width: 100%;
+}
 
+.chatbox-view {
+  width: 200px;
+  height: 350px;
 }
