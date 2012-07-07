@@ -52,8 +52,7 @@ Mchat.sidebarView = Em.View.create({
   classNames: ['sidebar-view']
 });
 
-Mchat.chatboxesView = Em.View.create({
-  templateName: 'chatboxes-view',
+Mchat.chatboxesView = Em.ContainerView.create({
   classNames: ['chatboxes-view']
 });
 
@@ -83,9 +82,45 @@ Mchat.UsersCollectionView = Em.CollectionView.extend({
   itemViewClass: Em.View.extend({
     template: Em.Handlebars.compile('{{content.username}}'),
     click: function(e) {
+      var username = this.content.username;
+      if (username === Mchat.currentUser.get('username'))
+        return false;
+      var childViews = Mchat.chatboxesView.get('childViews');
+      var view = childViews.filterProperty('to', username);
+      if (Em.empty(view)) {
+        var view = Mchat.ChatBoxView.create({to: username});
+        childViews.pushObject(view);
+      }
       return false;
     }
   })
+});
+
+Mchat.ChatBoxView = Em.View.extend({
+  templateName: 'chatbox-view',
+  classNames: ['chatbox-view'],
+  to: '',
+  msg: '',
+  append: function(username, msg) {
+    this.$('.chat-log').append(
+      '<div><span><b>' + username + ': </b></span>' +
+      '<span>' + msg + '</span></div>'
+    ).prop('scrollTop', $('.chat-log').prop('scrollHeight'));
+  },
+  keyUp: function(e) {
+    if (e.keyCode === 13) {
+      var to = this.get('to');
+      var msg = this.get('msg');
+      Mchat.api.sendMsg(to, msg);
+      this.append(Mchat.currentUser.get('username'), msg);
+      this.set('msg', '');
+    }
+    return false;
+  },
+  close: function(e) {
+    Mchat.chatboxesView.get('childViews').removeObject(this);
+    return false;
+  }
 });
 
 // Controllers
@@ -127,7 +162,7 @@ Mchat.initBullet = function() {
         var result = resp.result;
         window['Mchat']['api'][method](result);
       } else {
-        window.alert(resp.error.code + ': ' + resp.message);
+        window.alert(resp.error.code + ': ' + resp.error.message);
       }
     }
   };
@@ -168,8 +203,41 @@ Mchat.api = Em.Object.create({
   _userStatus: function(result) {
     var user = Mchat.usersController.
       findProperty('username', result.username);
-    if (!Em.empty(user)) {
-      user.set('status', result.status);
+    if (result.status === 'offline') {
+      if (!Em.empty(user)) {
+        Mchat.usersController.removeObject(user);
+      }
+      this._sendMsg({
+        from: result.username,
+        msg: '<i>Gone offline.</i>'});
+    } else {
+      if (Em.empty(user)) {
+        var user = Mchat.User.create();
+        user.setProperties(result);
+        Mchat.usersController.pushObject(user);
+      } else {
+        user.set('status', result.status);
+      }
+    }
+  },
+
+  sendMsg: function(to, msg) {
+    var req = {
+      method: 'sendMsg',
+      params: {to: to, msg: msg}};
+    Mchat.JsonRPCSend(req);
+  },
+  _sendMsg: function(result) {
+    var view = 
+      Mchat.chatboxesView.get('childViews').
+      filterProperty('to', result.from);
+    if (Em.empty(view)) {
+      view = Mchat.ChatBoxView.create({to: result.from});
+      Mchat.chatboxesView.get('childViews').pushObject(view);
+      Em.run.end();
+      view.append(result.from, result.msg);
+    } else {
+      view[0].append(result.from, result.msg);
     }
   }
 });

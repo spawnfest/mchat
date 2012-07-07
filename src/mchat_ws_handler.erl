@@ -29,13 +29,28 @@ stream({text, Data}, Req, State) ->
             L = mchat_server:get_users(),
             L1 = [{[{<<"username">>, X}, {<<"status">>, Y}]} || {X, Y} <- L],
             R = rjsonrpc2:encode(L1, Id),
-            {reply, R, Req, State}
+            {reply, R, Req, State};
+        {<<"sendMsg">>, Params, _Id} ->
+            {<<"to">>, Username} = lists:keyfind(<<"to">>, 1, Params),
+            {<<"msg">>, Msg} = lists:keyfind(<<"msg">>, 1, Params),
+            case mchat_server:get_user_pid(Username) of
+                [] -> io:format("Error: User ~p not online.~n", [Username]);
+                Pid -> Pid!{msg, State#state.username, Msg}
+            end,
+            {ok, Req, State};
+        {error, Msg} ->
+            {reply, jiffy:encode(Msg), Req, State} % Important
     end.
 
 info({userStatus, Username, Status}, Req, State) ->
     R = {[{<<"username">>, Username},
           {<<"status">>, Status}]},
     R1 = rjsonrpc2:encode(R, <<"_userStatus">>),
+    {reply, R1, Req, State};
+info({msg, Username, Msg}, Req, State) ->
+    R = {[{<<"from">>, Username},
+          {<<"msg">>, Msg}]},
+    R1 = rjsonrpc2:encode(R, <<"_sendMsg">>),
     {reply, R1, Req, State};
 info(_Info, Req, State) ->
     {ok, Req, State}.
@@ -53,6 +68,9 @@ interface() ->
     [{<<"ping">>, [{params,[]}]},
      {<<"login">>, [{params,
                      [{<<"username">>, binary}]}]},
-     {<<"getUsers">>, [{params,[]}]}
+     {<<"getUsers">>, [{params,[]}]},
+     {<<"sendMsg">>, [{params,
+                       [{<<"to">>, binary},
+                        {<<"msg">>, binary}]}]}
     ].
 

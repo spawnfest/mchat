@@ -31,9 +31,6 @@
     {{view Mchat.CurrentUserView}}
     {{view Mchat.UsersCollectionView}}
   </script>
-  <script type="text/x-handlebars" data-template-name="chatboxes-view">
-    <h3>Chatboxes View</h3>
-  </script>
   <script type="text/x-handlebars" data-template-name="login-view">
     <form>
       {{view Em.TextField width="240px"
@@ -43,6 +40,18 @@
         Connect
       </button>
     </form>
+  </script>
+  <script type="text/x-handlebars" data-template-name="chatbox-view">
+    <div class="chat-header">{{to}}
+      <span class="pull-right">
+        <i {{action "close" on="click"}} class="icon-remove"></i>
+      </span>
+    </div>
+    <div class="chat-log"></div>
+    <div class="chat-input">
+      {{view Em.TextArea valueBinding="msg"
+          action="keyup" target="parentView"}}
+    </div>
   </script>
 
   <!-- The missing protocol means that it will match the current protocol, either http or https. If running locally, we use the local jQuery. -->
