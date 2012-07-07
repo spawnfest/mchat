@@ -6,11 +6,13 @@ Simple chat system.
 Build
 -----
 Assuming you have rebar install just run:
-make
+<pre>make</pre>
 
 Run
 ---
+<pre>
 make run
+</pre>
 Default http://localhost:8080
 
 Config
