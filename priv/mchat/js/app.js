@@ -49,12 +49,12 @@ Mchat.stateManager = Em.StateManager.create({
 // Views
 Mchat.sidebarView = Em.View.create({
   templateName: 'sidebar-view',
-  classNames: 'sidebar-view'
+  classNames: ['sidebar-view']
 });
 
 Mchat.chatboxesView = Em.View.create({
   templateName: 'chatboxes-view',
-  className: 'chatboxes-view'
+  classNames: ['chatboxes-view']
 });
 
 Mchat.LoginView = Em.View.extend({
@@ -73,10 +73,19 @@ Mchat.LoginView = Em.View.extend({
 });
 
 Mchat.CurrentUserView = Em.View.extend({
+  classNames: ['current-user-view']
 });
 
 Mchat.UsersCollectionView = Em.CollectionView.extend({
-  content: ''
+  tagName: 'ul',
+  classNames: ['unstyled', 'users-collection-view'],
+  contentBinding: 'Mchat.usersController.content',
+  itemViewClass: Em.View.extend({
+    template: Em.Handlebars.compile('{{content.username}}'),
+    click: function(e) {
+      return false;
+    }
+  })
 });
 
 // Controllers
@@ -135,6 +144,8 @@ Mchat.api = Em.Object.create({
       method: 'login', id: '_login',
       params: {username: username}
     };
+    Mchat.currentUser.setProperties({username: username,
+                                     status: 'online'});
     Mchat.JsonRPCSend(req);
   },
   _login: function(result) {
@@ -155,7 +166,11 @@ Mchat.api = Em.Object.create({
   },
 
   _userStatus: function(result) {
-    console.log(result);
+    var user = Mchat.usersController.
+      findProperty('username', result.username);
+    if (!Em.empty(user)) {
+      user.set('status', result.status);
+    }
   }
 });
 

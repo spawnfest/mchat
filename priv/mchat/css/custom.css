@@ -1,19 +1,48 @@
 body {
+
 }
 .sidebar-view {
-  padding-left: 10px;
+  position: fixed;
   float: left;
-  width: 400px;
+  width: 316px;
+  height: 100%;
   background-color: whitesmoke;
+  border-right: 1px solid #b9b8b6;
+  box-shadow: #eee 2px 0px 3px;
 }
 
+.sidebar-view > div {
+  padding: 0 10px;
+  border-bottom: 1px solid lightgrey;
+}
+
+.header {
+  margin: 5px 0;
+  text-shadow: rgba(255, 255, 255, 1.0) 0px 1px 1px;
+  color: #555;
+}
+
+.login-view form {
+  margin-top: 9px;
+  margin-bottom: 0;
+}
 .login-view button {
   position: relative;
   top: -4px;
 }
 
+ul.users-collection-view {
+  overflow: auto;
+  height: 300px;
+}
+ul.users-collection-view > li {
+  padding: 0 10px;
+  cursor: pointer;
+}
+
 .chatboxes-view {
-  float: left;
+  position: fixed;
+  left: 316px;
   width: 100%;
 }
 
