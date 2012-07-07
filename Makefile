@@ -19,3 +19,7 @@ test:
 clean:
 	@$(REBAR) clean
 	rm -f erl_crash.dmp
+
+run:
+	erl -pa ebin deps/*/ebin -s mchat_app
+

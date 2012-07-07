@@ -22,16 +22,35 @@
   <![endif]-->
 </head>
 <body>
-  <script type="text/x-handlebars">
-    {{#view App.MyView}}
-      <h1>Hello world!</h1>
-    {{/view}}
+  <div>
+  <script type="text/x-handlebars" data-template-name="sidebar-view">
+    <div>
+      <h3>Mchat</h3>
+    </div>
+    {{view Mchat.LoginView}}
+    {{view Mchat.CurrentUserView}}
+    {{view Mchat.UsersCollectionView}}
+  </script>
+  <script type="text/x-handlebars" data-template-name="chatboxes-view">
+    <h3>Chatboxes View</h3>
+  </script>
+  <script type="text/x-handlebars" data-template-name="login-view">
+    <form>
+        {{view Em.TextField width="240px"
+            placeholder="Enter username"
+            valueBinding="username"}}
+        <div>
+          <button type="sumbit" class="btn primary">
+            Connect
+          </button>
+        </div>
+   </form>
   </script>
 
   <!-- The missing protocol means that it will match the current protocol, either http or https. If running locally, we use the local jQuery. -->
   <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
   <script>window.jQuery || document.write('<script src="js/libs/jquery-1.7.2.min.js"><\/script>')</script>
-  <script src="js/libs/ember-0.9.8.1.min.js"></script>
+  <script src="js/libs/ember-0.9.8.1.js"></script>
   <script src="js/libs/bootstrap.min.js"></script>
   <script src="js/libs/bullet.js"></script>
   <script src="js/app.js"></script>

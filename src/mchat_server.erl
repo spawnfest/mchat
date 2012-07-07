@@ -4,7 +4,8 @@
 
 %% API
 -export([
-         start_link/0
+         start_link/0,
+         is_valid_login/1
         ]).
 
 %% gen_server callbacks
@@ -21,6 +22,9 @@
 
 start_link() ->
     gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
+
+is_valid_login(_Username) ->
+    true.
 
 %%%===================================================================
 %%% gen_server callbacks
