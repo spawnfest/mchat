@@ -37,6 +37,15 @@ b {
   top: -4.5px;
 }
 
+.current-user-view {
+  display: none;
+}
+.current-user-view > form > span {
+  position: relative;
+  font-size: 15px;
+  top: 6px;
+}
+
 ul.users-collection-view {
   overflow: auto;
   height: 300px;

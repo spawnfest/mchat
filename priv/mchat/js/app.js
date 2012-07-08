@@ -12,7 +12,6 @@ var Mchat = Em.Application.create({
     Mchat.initBullet();
   });
   Mchat.sidebarView.append();
-  Mchat.chatboxesView.append();
  }
 });
 
@@ -27,6 +26,9 @@ Mchat.stateManager = Em.StateManager.create({
     enter: function() {
     },
     exit: function() {
+      Mchat.sidebarView.get('childViews')[1].toggle();
+      Mchat.sidebarView.get('childViews')[0].toggle();
+      Mchat.chatboxesView.append();
     },
     login: function(manager, context) {
       Mchat.api.login(context.username);
@@ -45,9 +47,13 @@ Mchat.stateManager = Em.StateManager.create({
       Mchat.api.getUsers();
     },
     exit: function() {
-      // TODO Maybe clean up or reset certain ui
+      Mchat.sidebarView.get('childViews')[0].toggle();
+      Mchat.sidebarView.get('childViews')[1].toggle();
+      Mchat.usersController.set('content', '');
+      Mchat.chatboxesView.remove();
     },
     disconnect: function(manager, context) {
+      Mchat.api.logout();
       manager.goToState('loggedOut');
     }
   })
@@ -67,6 +73,9 @@ Mchat.LoginView = Em.View.extend({
   templateName: 'login-view',
   classNames: ['login-view'],
   username: '',
+  toggle: function() {
+    this.$().toggle();
+  },
   submit: function(e) {
     var username = this.get('username');
     if (Em.empty(username)) {
@@ -79,7 +88,16 @@ Mchat.LoginView = Em.View.extend({
 });
 
 Mchat.CurrentUserView = Em.View.extend({
-  classNames: ['current-user-view']
+  templateName: 'current-user-view',
+  usernameBinding: 'Mchat.currentUser.username',
+  classNames: ['current-user-view'],
+  toggle: function() {
+    this.$().toggle();
+  },
+  submit: function(e) {
+    Mchat.stateManager.send('disconnect');
+    return false;
+  }
 });
 
 Mchat.UsersCollectionView = Em.CollectionView.extend({
@@ -132,6 +150,10 @@ Mchat.ChatBoxView = Em.View.extend({
   }
 });
 
+Mchat.UploaderView = Em.View.extend({
+
+});
+
 // Controllers
 Mchat.usersController = Em.ArrayController.create();
 
@@ -159,6 +181,7 @@ Mchat.initBullet = function() {
   
   Mchat.Bullet.onclose = function() {
     console.log('Main websocket: closed');
+    Mchat.stateManager.goToState('loggedOut');
   };
 
   Mchat.Bullet.onmessage = function(e) {
@@ -194,6 +217,10 @@ Mchat.api = Em.Object.create({
   },
   _login: function(result) {
     Mchat.stateManager.send('loginResult', result);
+  },
+
+  logout: function() {
+    Mchat.JsonRPCSend({method: 'logout'});
   },
 
   getUsers: function() {

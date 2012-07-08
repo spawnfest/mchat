@@ -25,6 +25,11 @@ stream({text, Data}, Req, State) ->
                     R1 = rjsonrpc2:encode(R, Id),
                     {reply, R1, Req, State}
             end;
+        {<<"logout">>, [], _Id} ->
+            mchat_server:delete_user(State#state.username, self()),
+            NewState = State#state{username=null,
+                                   interface=default_interface()},
+            {ok, Req, NewState};
         {<<"getUsers">>, [], Id} ->
             L = mchat_server:get_users(),
             L1 = [{[{<<"username">>, X}, {<<"status">>, Y}]} || {X, Y} <- L],
@@ -68,6 +73,7 @@ interface() ->
     [{<<"ping">>, [{params,[]}]},
      {<<"login">>, [{params,
                      [{<<"username">>, binary}]}]},
+     {<<"logout">>, [{params,[]}]},
      {<<"getUsers">>, [{params,[]}]},
      {<<"sendMsg">>, [{params,
                        [{<<"to">>, binary},
