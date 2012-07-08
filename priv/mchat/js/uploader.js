@@ -6,7 +6,7 @@ var ws = null,
 
 function init(ip, port) {
   ws = new WebSocket('ws://'+ip+':'+port+'/upload');
-  ws.binaryType = "arraybuffer";
+  ws.binaryType = 'arraybuffer';
   ws.onopen = function() {
     heartbeat = setInterval(function(){ws.onheartbeat();}, 20000);
     postMessage({status: 'opened'});
@@ -22,9 +22,14 @@ function init(ip, port) {
     if (e.data instanceof ArrayBuffer) {
       // handle binary data from server
     } else {
-      if (e.data === 'ok') {
-        sendSlice();
-      } else if (e.data === 'sendToPid=ok') {
+      var resp = JSON.parse(e.data);
+      if (resp.id === '_continue') {
+        if (resp.result.continue) {
+          sendSlice();
+        } else {
+          ws.close();
+        }
+      } else if (resp.id === '_gotDownloadPid') {
         sendSlice();
       }
     }
@@ -47,7 +52,7 @@ function sendSlice() {
     start = end;
     end = start + BYTES_PER_CHUNK;
 
-    progress = Math.round((end/SIZE) * 10000) / 100;
+    progress = (end/SIZE) * 100;
     if (progress > 100) progress = 100;
     postMessage({status: 'progress',
                  progress: progress});

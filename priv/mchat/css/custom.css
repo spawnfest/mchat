@@ -6,6 +6,14 @@ b {
   font-weight: bold;
 }
 
+iframe {
+  height: 400px;
+}
+
+i {
+  cursor: pointer;
+}
+
 .sidebar-view {
   position: fixed;
   float: left;
@@ -132,6 +140,12 @@ ul.users-collection-view > li > i {
 }
 
 /* Upload & download view related */
+.upload-view{
+  display: none;
+}
+.download-view {
+  display: none;
+}
 .progress {
   margin-bottom: 4px;
 }

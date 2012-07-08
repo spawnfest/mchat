@@ -10,8 +10,8 @@ var Mchat = Em.Application.create({
     Mchat.IP = data.ip,
     Mchat.PORT = data.port,
     Mchat.initBullet();
+    Mchat.sidebarView.append();
   });
-  Mchat.sidebarView.append();
  }
 });
 
@@ -50,7 +50,12 @@ Mchat.stateManager = Em.StateManager.create({
       Mchat.sidebarView.get('childViews')[0].toggle();
       Mchat.sidebarView.get('childViews')[1].toggle();
       Mchat.usersController.set('content', '');
+      Mchat.currentUser.set('username', '');
       Mchat.chatboxesView.remove();
+      // TODO force reload hack to prevent certain bugs
+      // related to zombie workers, states and views
+      // remove if bugs are cleared
+      window.location.reload(); 
     },
     disconnect: function(manager, context) {
       Mchat.api.logout();
@@ -63,6 +68,13 @@ Mchat.stateManager = Em.StateManager.create({
 Mchat.sidebarView = Em.View.create({
   templateName: 'sidebar-view',
   classNames: ['sidebar-view']
+});
+
+Mchat.FileSystemView = Em.View.extend({
+  tagName: 'iframe',
+  attributeBindings: ['src'],
+  src: 'filesystem:http://'+
+    Mchat.IP+':'+Mchat.PORT+'/temporary/'
 });
 
 Mchat.chatboxesView = Em.ContainerView.create({
@@ -147,6 +159,9 @@ Mchat.ChatBoxView = Em.View.extend({
   close: function(e) {
     Mchat.chatboxesView.get('childViews').removeObject(this);
     return false;
+  },
+  send: function(e) {
+    this.get('childViews')[0].toggle();
   }
 });
 
@@ -154,6 +169,9 @@ Mchat.UploaderView = Em.View.extend({
   templateName: 'upload-view',
   classNames: ['upload-view'],
   uploader: null,
+  toggle: function() {
+    this.$().toggle();
+  },
   send: function(e) {
     var file = this.$('.send-file').prop('files')[0];
     var username = this.getPath('parentView.to');
@@ -185,9 +203,80 @@ Mchat.UploaderView = Em.View.extend({
     if (answer) {
       this.uploader.postMessage({cmd: 'start', pid: pid});
     } else {
-      this.uploader.close();
       this.uploader = null;
+      alert('Send File Request: Not accepted.');
     }
+  }
+});
+
+Mchat.DownloadView = Em.View.extend({
+  templateName: 'download-view',
+  classNames: ['download-view'],
+  fileName: '',
+  fileType: '',
+  fileSize: '',
+  downloader: null,
+  close: function() {
+    this.$().toggle();
+    return false;
+  },
+  yes: function(e) {
+    var to = this.getPath('parentView.to');
+    var worker = this.downloader = new Worker('js/downloader.js');
+    var $progressBar = this.$('div.bar');
+    var $close = this.$('button.hide');
+    var $cancel = this.$('button.cancel');
+    var file = {name: this.fileName,
+                type: this.fileType,
+                size: this.fileSize};
+    this.$('button.yes').hide();
+    this.$('button.no').hide();
+    this.$('button.hide').hide();
+    this.$('button.cancel').show();
+    worker.addEventListener('message', function(e) {
+      var status = e.data.status;
+      if (status === 'progress') {
+        $progressBar.css('width', e.data.progress + '%');
+      } else if (status === 'opened') {
+        console.log('Download websocket: opened.');
+        worker.postMessage({cmd: 'start', file: file});
+      } else if (status === 'download') {
+        Mchat.api.sendFileReply(to, true, e.data.pid);
+      } else if (status === 'closed') {
+        console.log('Download websocket: closed.');
+      } else if (status === 'completed') {
+        console.log('Download websocket: completed');
+        $close.show();
+        $cancel.hide();
+      }
+    }, false);
+    worker.postMessage({cmd: 'init',
+                        ip: Mchat.IP, 
+                        port: Mchat.PORT});
+    return false;
+  },
+  no: function(e) {
+    var to = this.getPath('parentView.to');
+    Mchat.api.sendFileReply(to, false, "");
+    this.$().hide();
+    return false;
+  },
+  cancel: function(e) {
+    if (Em.empty(this.downloader)) {
+      this.downloader.postMessage({cmd: 'cancel'});
+      return false;
+    }
+  },
+  sendFileRequest: function(result) {
+    this.set('fileName', result.fileName);
+    this.set('fileType', result.fileType);
+    this.set('fileSize', result.fileSize);
+    this.$('button.yes').show();
+    this.$('button.no').show();
+    this.$('button.cancel').hide();
+    this.$('button.hide').hide();
+    this.$('div.bar').css('width', '0%');
+    this.$().show();
   }
 });
 
@@ -336,8 +425,20 @@ Mchat.api = Em.Object.create({
 
   // Receive file request and send reply
   _sendFileRequest: function(result) {
-    // TODO: for now always accept file request
-    Mchat.api.sendFileReply(result.from, true, "");
+    var view = Mchat.chatboxesView.
+      get('childViews').filterProperty('to', result.from);
+    if (Em.empty(view)) {
+      view = Mchat.ChatBoxView.create({to: result.from});
+      Mchat.chatboxesView.get('childViews').pushObject(view);
+      Em.run.end();
+      view.get('childViews').
+        filterProperty('templateName', 'download-view')[0].
+        sendFileRequest(result);
+    } else {
+      view[0].get('childViews').
+        filterProperty('templateName', 'download-view')[0].
+        sendFileRequest(result);
+    }
   },
   sendFileReply: function(to, answer, pid) {
     // Pid will be the download worker <--> erlang pid

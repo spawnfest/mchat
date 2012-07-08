@@ -28,6 +28,8 @@ init([]) ->
                         [{handler, mchat_ws_handler}]},
                        {[<<"upload">>], bullet_handler, 
                         [{handler, mchat_upload_handler}]},
+                       {[<<"download">>], bullet_handler, 
+                        [{handler, mchat_download_handler}]},
                        {[], cowboy_http_static,
                         [{directory, {priv_dir, ?MODULE, [<<"mchat">>]}},
                          {file, <<"index.html">>},

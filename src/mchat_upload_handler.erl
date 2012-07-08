@@ -6,21 +6,29 @@
 init(_Transport, Req, _Opts, _Active) ->
     {ok, Req, #state{}}.
 
-stream({binary, _Data}, Req, State) ->
-    io:format("~p~n", ["Data"]),
-    {reply, <<"ok">>, Req, State};
+stream({binary, Data}, Req, State) ->
+    Pid = State#state.send_to_pid,
+    Pid!{binary, Data},
+    {ok, Req, State};
 stream({text, Data}, Req, State) ->
     case rjsonrpc2:decode(Data, State#state.interface) of
         {<<"sendToPid">>, Params, _Id} ->
             {<<"pid">>, Pid} = lists:keyfind(<<"pid">>, 1, Params),
-            % TODO: For now assume valid pid
-            %Pid1 = list_to_pid(binary_to_list(Pid)),
-            %link(Pid1),
-            {reply, <<"sendToPid=ok">>, Req, State#state{send_to_pid=Pid}};
+            Pid1 = list_to_pid(binary_to_list(Pid)),
+            link(Pid1),
+            NewState = State#state{send_to_pid=Pid1},
+            Pid1!{uploaderPid, self()},
+            R = {[{<<"gotDownloadPid">>, true}]},
+            R1 = rjsonrpc2:encode(R, <<"_gotDownloadPid">>),
+            {reply, R1, Req, NewState};
         {error, Msg} ->
             {reply, jiffy:encode(Msg), Req, State} % Important
     end.
 
+info({continue, Answer}, Req, State) ->
+    R = {[{<<"continue">>, Answer}]},
+    R1 = rjsonrpc2:encode(R, <<"_continue">>),
+    {reply, R1, Req, State};
 info(_Info, Req, State) ->
     {ok, Req, State}.
 
