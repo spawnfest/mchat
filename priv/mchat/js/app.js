@@ -10,8 +10,8 @@ var Mchat = Em.Application.create({
     Mchat.IP = data.ip,
     Mchat.PORT = data.port,
     Mchat.initBullet();
-    Mchat.sidebarView.append();
   });
+  Mchat.sidebarView.append();
  }
 });
 
@@ -28,6 +28,9 @@ Mchat.stateManager = Em.StateManager.create({
     exit: function() {
       Mchat.sidebarView.get('childViews')[1].toggle();
       Mchat.sidebarView.get('childViews')[0].toggle();
+      Mchat.sidebarView.get('childViews')[3].
+        set('src', 
+            'filesystem:http://'+Mchat.IP+':'+Mchat.PORT+'/temporary'),
       Mchat.chatboxesView.append();
     },
     login: function(manager, context) {
