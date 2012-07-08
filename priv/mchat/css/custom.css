@@ -130,3 +130,8 @@ ul.users-collection-view > li > i {
   margin-top: 9px;
   resize: none;
 }
+
+/* Upload & download view related */
+.progress {
+  margin-bottom: 4px;
+}

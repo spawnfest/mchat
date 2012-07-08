@@ -56,10 +56,20 @@
         <i {{action "close" on="click"}} class="pull-right icon-remove"></i>
       </span>
     </div>
+    {{view Mchat.UploaderView}}
     <div class="chat-log"></div>
     <div class="chat-input">
       {{view Em.TextArea valueBinding="msg"
           action="keyup" target="parentView"}}
+    </div>
+  </script>
+  <script type="text/x-handlebars" data-template-name="upload-view">
+    <input class="send-file" type="file">
+    <button {{action "send" on="click"}} class="btn btn-mini">
+      Send
+    </button>
+    <div class="progress">
+      <div class="bar"></div>
     </div>
   </script>
 

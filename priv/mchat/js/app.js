@@ -151,7 +151,44 @@ Mchat.ChatBoxView = Em.View.extend({
 });
 
 Mchat.UploaderView = Em.View.extend({
+  templateName: 'upload-view',
+  classNames: ['upload-view'],
+  uploader: null,
+  send: function(e) {
+    var file = this.$('.send-file').prop('files')[0];
+    var username = this.getPath('parentView.to');
+    var worker = this.uploader = new Worker('js/uploader.js');
+    var $progressBar = this.$('div.bar');
 
+    worker.addEventListener('message', function(e) {
+      var status = e.data.status;
+      if (status === 'progress') {
+        $progressBar.css('width', e.data.progress + '%');
+      } else if (status === 'opened') {
+        console.log('Upload websocket: opened.');
+        Mchat.api.sendFileRequest(username, file.name,
+                                  file.type, file.size);
+      } else if (status === 'closed') {
+        console.log('Upload websocket: closed.');
+      } else if (status === 'completed') {
+        console.log('Upload websocket: completed transfer.');
+      }
+    }, false);
+    worker.postMessage({cmd: 'init',
+                        file: file,
+                        username: username,
+                        ip: Mchat.IP,
+                        port: Mchat.PORT});
+    return false;
+  },
+  sendFile: function(answer, pid) {
+    if (answer) {
+      this.uploader.postMessage({cmd: 'start', pid: pid});
+    } else {
+      this.uploader.close();
+      this.uploader = null;
+    }
+  }
 });
 
 // Controllers
@@ -275,6 +312,39 @@ Mchat.api = Em.Object.create({
     } else {
       view[0].append(result.from, result.msg);
     }
+  },
+
+  // Send File request and expect a send file reply
+  sendFileRequest: function(to, fileName, fileType, fileSize) {
+    var req = { 
+      method: 'sendFileRequest',
+      params: {to: to, fileName: fileName, fileType: fileType, fileSize: fileSize}
+    };
+    Mchat.JsonRPCSend(req);
+  },
+  _sendFileReply: function(result) {
+    var view = Mchat.chatboxesView.
+      get('childViews').filterProperty('to', result.from);
+    if (Em.empty(view)) {
+      // Do nothing ?
+    } else {
+      view[0].get('childViews').
+        filterProperty('templateName', 'upload-view')[0].
+        sendFile(result.answer, result.pid);
+    }
+  },
+
+  // Receive file request and send reply
+  _sendFileRequest: function(result) {
+    // TODO: for now always accept file request
+    Mchat.api.sendFileReply(result.from, true, "");
+  },
+  sendFileReply: function(to, answer, pid) {
+    // Pid will be the download worker <--> erlang pid
+    var req = {
+      method: 'sendFileReply',
+      params: {to: to, answer: answer, pid: pid}};
+    Mchat.JsonRPCSend(req);
   }
 });
 

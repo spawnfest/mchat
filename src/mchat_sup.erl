@@ -26,6 +26,8 @@ start_link() ->
 init([]) ->
    Dispatch = [{'_', [{[<<"mchat-api">>], bullet_handler, 
                         [{handler, mchat_ws_handler}]},
+                       {[<<"upload">>], bullet_handler, 
+                        [{handler, mchat_upload_handler}]},
                        {[], cowboy_http_static,
                         [{directory, {priv_dir, ?MODULE, [<<"mchat">>]}},
                          {file, <<"index.html">>},
