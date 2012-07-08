@@ -94,7 +94,11 @@ info(_Info, Req, State) ->
     {ok, Req, State}.
 
 terminate(_Req, State) ->
-    mchat_server:delete_user(State#state.username, self()),
+    case State#state.username of
+        undefined -> ok;
+        null      -> ok;
+        Username  -> mchat_server:delete_user(Username, self())
+    end,
     ok.
 
 default_interface() ->

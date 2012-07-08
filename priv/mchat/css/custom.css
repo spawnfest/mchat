@@ -149,3 +149,14 @@ ul.users-collection-view > li > i {
 .progress {
   margin-bottom: 4px;
 }
+.file-data {
+  padding: 0 10px;
+  padding-top: 3px;
+}
+.file-data p {
+  margin-bottom: 0px;
+}
+.download-buttons {
+  padding: 0 10px;
+  padding-bottom: 4px;
+}

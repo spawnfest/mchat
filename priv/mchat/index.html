@@ -77,11 +77,11 @@
     </div>
   </script>
   <script type="text/x-handlebars" data-template-name="download-view">
-    <div>
+    <div class="file-data">
       <p>Download: {{fileName}}</p>
       <p>Size: {{fileSize}} Type: {{fileType}}</p>
     </div>
-    <div>
+    <div class="download-buttons"> 
       <button {{action "yes" on="click"}} class="yes btn btn-mini">
         Yes
       </button>

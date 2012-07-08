@@ -1,6 +1,6 @@
 {application, mchat,
  [
-  {description, "Mighty Chat"},
+  {description, "Minimal Chat Application"},
   {vsn, "0.1"},
   {registered, []},
   {applications, [

@@ -72,10 +72,6 @@ self.addEventListener('message', function(e) {
     ws.send(JSON.stringify(
       {method: 'getPid', jsonrpc: '2.0', id: '_getPid'}
     ));
-  } else if (e.data.cmd === 'cancel') {
-    ws.send(JSON.stringify({method: 'continue', 
-                            jsonrpc: '2.0',
-                            params: {answer: false}}));
   }
 }, false);
 

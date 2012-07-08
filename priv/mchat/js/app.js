@@ -248,6 +248,7 @@ Mchat.DownloadView = Em.View.extend({
         console.log('Download websocket: completed');
         $close.show();
         $cancel.hide();
+        $('iframe').attr('src', function(i, val) {return val;});
       }
     }, false);
     worker.postMessage({cmd: 'init',
@@ -262,10 +263,9 @@ Mchat.DownloadView = Em.View.extend({
     return false;
   },
   cancel: function(e) {
-    if (Em.empty(this.downloader)) {
-      this.downloader.postMessage({cmd: 'cancel'});
-      return false;
-    }
+    this.downloader.terminate();
+    this.$().hide();
+    return false;
   },
   sendFileRequest: function(result) {
     this.set('fileName', result.fileName);
